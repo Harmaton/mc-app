@@ -21,8 +21,9 @@ import { Plus, Edit, Trash2, Package, ImageIcon, Star } from "lucide-react"
 import { toast } from "sonner"
 
 import { useQuery, useMutation } from "convex/react"
-import { api } from "../../../convex/_generated/api"
-import type { Id } from "../../../convex/_generated/dataModel"
+import { Id } from "@/convex/_generated/dataModel"
+import { api } from "@/convex/_generated/api"
+
 
 interface Product {
   _id: Id<"productCatalog">
@@ -106,7 +107,7 @@ export default function ProductsPage() {
 
     setIsLoading(true)
     try {
-      await createProduct({
+            await createProduct({
         name: newProduct.name.trim(),
         description: newProduct.description.trim(),
         categoryId: newProduct.categoryId as Id<"categories">,

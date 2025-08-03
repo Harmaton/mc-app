@@ -5,6 +5,7 @@ export default defineSchema({
   categories: defineTable({
     name: v.string(),
     description: v.string(),
+    imageUrl: v.optional(v.string()), // Add image for category
     isActive: v.boolean(),
     createdAt: v.number(),
   }),
@@ -12,6 +13,7 @@ export default defineSchema({
   productCatalog: defineTable({
     name: v.string(),
     description: v.string(),
+    slug: v.string(), // Add unique slug for products
     categoryId: v.id("categories"),
     basePrice: v.number(),
     costPrice: v.number(),
@@ -35,6 +37,7 @@ export default defineSchema({
   })
     .index("by_category", ["categoryId"])
     .index("by_sku", ["sku"])
+    .index("by_slug", ["slug"]) // Add slug index
     .index("by_active", ["isActive"])
     .index("by_featured", ["isFeatured"]),
 

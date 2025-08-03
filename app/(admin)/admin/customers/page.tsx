@@ -19,8 +19,8 @@ import { Plus, Edit, Trash2, Phone, Mail } from "lucide-react"
 import { toast } from "sonner"
 
 import { useQuery, useMutation } from "convex/react"
-import { api } from "../../../convex/_generated/api"
-import type { Id } from "../../../convex/_generated/dataModel"
+import { api } from "../../../../convex/_generated/api"
+import type { Id } from "../../../../convex/_generated/dataModel"
 
 interface Customer {
   _id: Id<"customers">

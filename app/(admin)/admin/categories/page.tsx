@@ -20,8 +20,8 @@ import { Plus, Edit, Trash2, FolderOpen } from "lucide-react"
 import { toast } from "sonner"
 
 import { useQuery, useMutation } from "convex/react"
-import { api } from "../../../convex/_generated/api"
-import type { Id } from "../../../convex/_generated/dataModel"
+import { api } from "../../../../convex/_generated/api"
+import type { Id } from "../../../../convex/_generated/dataModel"
 
 interface Category {
   _id: Id<"categories">

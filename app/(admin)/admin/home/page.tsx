@@ -4,7 +4,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { DollarSign, Package, ShoppingCart, TrendingUp, Truck, PieChart, Receipt } from "lucide-react"
 import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis, CartesianGrid, Legend, Tooltip } from "recharts"
 import { useQuery } from "convex/react"
-import { api } from "../../../convex/_generated/api"
+import { api } from "@/convex/_generated/api"
+
 
 export default function HomePage() {
   const stats = useQuery(api.products.getStats)

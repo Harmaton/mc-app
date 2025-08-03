@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { DollarSign, Receipt, TrendingUp, Calendar, Download, Filter } from "lucide-react"
 import { useQuery } from "convex/react"
-import { api } from "../../../convex/_generated/api"
+import { api } from "../../../../convex/_generated/api"
 
 export default function SalesPage() {
   const sales = useQuery(api.products.getSalesWithProducts) || []

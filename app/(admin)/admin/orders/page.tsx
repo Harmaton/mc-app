@@ -21,8 +21,8 @@ import { Plus, Edit, Trash2, CheckCircle, User, AlertCircle } from "lucide-react
 import { toast } from "sonner"
 
 import { useQuery, useMutation } from "convex/react"
-import { api } from "../../../convex/_generated/api"
-import type { Id } from "../../../convex/_generated/dataModel"
+import { api } from "../../../../convex/_generated/api"
+import type { Id } from "../../../../convex/_generated/dataModel"
 
 export default function OrdersPage() {
   const orders = useQuery(api.products.listWithProducts) || []

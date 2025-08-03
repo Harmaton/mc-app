@@ -3,6 +3,8 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import ConvexClientProvider from "@/lib/convexClientProvider";
 import { ClerkProvider } from "@clerk/nextjs";
+import { Toaster } from "sonner";
+import { CartProvider } from "@/components/storefront/cart-provider";
 
 
 
@@ -34,7 +36,10 @@ export default function RootLayout({
       > 
        <ClerkProvider>
       <ConvexClientProvider>
-        {children}
+        <CartProvider>
+       <main className="min-h-screen">{children}</main> 
+        </CartProvider>
+        <Toaster position="top-right" richColors />
         </ConvexClientProvider>
         </ClerkProvider>
       </body>
