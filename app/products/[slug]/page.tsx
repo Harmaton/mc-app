@@ -12,16 +12,19 @@ import { useState } from "react"
 import { useCart } from "@/components/storefront/cart-provider"
 import { toast } from "sonner"
 import Link from "next/link"
-import { notFound } from "next/navigation"
+import { notFound, useParams } from "next/navigation"
 
-interface ProductPageProps {
-  params: {
-    slug: string
-  }
-}
 
-export default function ProductPage({ params }: ProductPageProps) {
-  const product = useQuery(api.productCatalog.getBySlug, { slug: params.slug })
+export default function ProductPage() {
+    const { id } = useParams()  // ← Get `id` from useParams()
+  
+    if (!id) {
+      notFound()
+    }
+  
+    const productId = typeof id === "string" ? id : ""
+  
+  const product = useQuery(api.productCatalog.getBySlug, { slug: productId }) 
   const categories = useQuery(api.categories.list) || []
   const { addItem } = useCart()
 
