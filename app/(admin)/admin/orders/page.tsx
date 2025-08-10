@@ -24,6 +24,16 @@ import { useQuery, useMutation } from "convex/react"
 import { api } from "../../../../convex/_generated/api"
 import type { Id } from "../../../../convex/_generated/dataModel"
 
+type Product = {
+  _id: string
+  name: string
+  sku: string
+  basePrice: number
+  costPrice: number
+  stockQuantity: number
+  categoryId: string
+}
+
 export default function OrdersPage() {
   const orders = useQuery(api.products.listWithProducts) || []
   const categories = useQuery(api.categories.listActive) || []
@@ -204,7 +214,7 @@ export default function OrdersPage() {
       acc[categoryName].push(product)
       return acc
     },
-    {} as Record<string, any[]>,
+    {} as Record<string, Product[]>,
   )
 
   return (
