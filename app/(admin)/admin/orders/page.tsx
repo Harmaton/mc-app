@@ -58,7 +58,7 @@ export default function OrdersPage() {
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [useExistingCustomer, setUseExistingCustomer] = useState(true)
-  const [selectedProduct, setSelectedProduct] = useState<any>(null)
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null)
 
   const handleCustomerSelect = (customerId: string) => {
     const customer = customers.find((c) => c._id === customerId)
@@ -473,7 +473,7 @@ export default function OrdersPage() {
               </Button>
               <Button
                 onClick={handleAddOrder}
-                disabled={isLoading || (selectedProduct && selectedProduct.stockQuantity <= 0)}
+                disabled={isLoading || (!!selectedProduct && selectedProduct.stockQuantity <= 0)}
               >
                 {isLoading ? "Creating..." : "Add Order"}
               </Button>
