@@ -105,28 +105,32 @@ ${colorConfig
 const ChartTooltip = RechartsPrimitive.Tooltip
 
 function ChartTooltipContent({
-  active,
-  payload,
   className,
   indicator = "dot",
   hideLabel = false,
   hideIndicator = false,
-  label,
   labelFormatter,
   labelClassName,
   formatter,
   color,
   nameKey,
   labelKey,
-}: React.ComponentProps<typeof RechartsPrimitive.Tooltip> &
-  React.ComponentProps<"div"> & {
-    hideLabel?: boolean
-    hideIndicator?: boolean
-    indicator?: "line" | "dot" | "dashed"
-    nameKey?: string
-    labelKey?: string
-  }) {
+  ...props
+}: Omit<React.ComponentProps<typeof RechartsPrimitive.Tooltip>, "content"> & {
+  hideLabel?: boolean
+  hideIndicator?: boolean
+  indicator?: "line" | "dot" | "dashed"
+  nameKey?: string
+  labelKey?: string
+} & React.HTMLAttributes<HTMLDivElement>) {
   const { config } = useChart()
+
+  // Recharts injects these — extract them safely
+  const { active, payload, label: tooltipLabelValue } = props as unknown as {
+    active?: boolean
+    payload?: Array<Record<string, any>>
+    label?: string | number
+  }
 
   const tooltipLabel = React.useMemo(() => {
     if (hideLabel || !payload?.length) {
@@ -136,12 +140,14 @@ function ChartTooltipContent({
     const [item] = payload
     const key = `${labelKey || item?.dataKey || item?.name || "value"}`
     const itemConfig = getPayloadConfigFromPayload(config, item, key)
+
+    // Use injected `tooltipLabelValue` only if `labelKey` not provided
     const value =
-      !labelKey && typeof label === "string"
-        ? config[label as keyof typeof config]?.label || label
+      !labelKey && typeof tooltipLabelValue === "string"
+        ? config[tooltipLabelValue as keyof typeof config]?.label || tooltipLabelValue
         : itemConfig?.label
 
-    if (labelFormatter) {
+    if (labelFormatter && value !== undefined) {
       return (
         <div className={cn("font-medium", labelClassName)}>
           {labelFormatter(value, payload)}
@@ -155,7 +161,7 @@ function ChartTooltipContent({
 
     return <div className={cn("font-medium", labelClassName)}>{value}</div>
   }, [
-    label,
+    tooltipLabelValue,
     labelFormatter,
     payload,
     hideLabel,
@@ -253,15 +259,17 @@ const ChartLegend = RechartsPrimitive.Legend
 function ChartLegendContent({
   className,
   hideIcon = false,
-  payload,
   verticalAlign = "bottom",
   nameKey,
-}: React.ComponentProps<"div"> &
-  Pick<RechartsPrimitive.LegendProps, "payload" | "verticalAlign"> & {
-    hideIcon?: boolean
-    nameKey?: string
-  }) {
+  ...props
+}: Omit<React.ComponentProps<typeof RechartsPrimitive.Legend>, "payload"> & {
+  hideIcon?: boolean
+  nameKey?: string
+} & React.HTMLAttributes<HTMLDivElement>) {
   const { config } = useChart()
+
+  // Recharts injects `payload` — it's not a direct prop
+  const { payload } = props as { payload?: Array<Record<string, any>> }
 
   if (!payload?.length) {
     return null
@@ -282,21 +290,17 @@ function ChartLegendContent({
         return (
           <div
             key={item.value}
-            className={cn(
-              "[&>svg]:text-muted-foreground flex items-center gap-1.5 [&>svg]:h-3 [&>svg]:w-3"
-            )}
+            className="flex items-center gap-1.5 [&>svg]:text-muted-foreground [&>svg]:h-3 [&>svg]:w-3"
           >
             {itemConfig?.icon && !hideIcon ? (
               <itemConfig.icon />
             ) : (
               <div
                 className="h-2 w-2 shrink-0 rounded-[2px]"
-                style={{
-                  backgroundColor: item.color,
-                }}
+                style={{ backgroundColor: item.color }}
               />
             )}
-            {itemConfig?.label}
+            {itemConfig?.label ?? item.value}
           </div>
         )
       })}
