@@ -18,11 +18,20 @@ export default function HomePage() {
       <StorefrontNavbar />
 
       {/* Hero Section */}
-      <section className="relative bg-gradient-to-r from-primary/10 to-primary/5 py-20">
+      <section 
+  className="relative bg-cover bg-center bg-no-repeat py-20"
+  style={{
+    backgroundImage: "url('/banner-mc1.png')",
+    backgroundSize: 'cover',
+    backgroundPosition: 'center',
+  }}
+>
         <div className="container mx-auto px-4">
-          <div className="max-w-3xl mx-auto text-center">
-            <h1 className="text-4xl md:text-6xl font-bold mb-6">Premium Bags & Accessories</h1>
-            <p className="text-xl text-muted-foreground mb-8">
+          <div className="max-w-3xl mx-auto text-center"
+       
+          >
+            <h1 className="text-4xl md:text-6xl font-bold mb-6">Premium Bags </h1>
+            <p className="text-xl font-semibold mb-8">
               Discover our curated collection of high-quality bags, totes, backpacks, and accessories crafted for style
               and durability.
             </p>

@@ -5,10 +5,11 @@ import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
-import { ShoppingBag, Menu, Search, User, ShoppingCart } from "lucide-react"
+import { Menu, Search, User, ShoppingCart } from "lucide-react"
 import { useCart } from "./cart-provider"
 import { Authenticated, Unauthenticated, AuthLoading } from "convex/react"
 import { SignInButton, UserButton } from "@clerk/nextjs"
+import Image from "next/image"
 
 export function StorefrontNavbar() {
   const [isOpen, setIsOpen] = useState(false)
@@ -18,8 +19,6 @@ export function StorefrontNavbar() {
     { name: "Home", href: "/" },
     { name: "Products", href: "/products" },
     { name: "Categories", href: "/categories" },
-    { name: "About", href: "/about" },
-    { name: "Contact", href: "/contact" },
   ]
 
   return (
@@ -28,8 +27,13 @@ export function StorefrontNavbar() {
         <div className="flex h-16 items-center justify-between">
           {/* Logo */}
           <Link href="/" className="flex items-center space-x-2">
-            <ShoppingBag className="h-6 w-6" />
-            <span className="font-bold text-xl">MillCarry</span>
+            <Image 
+              src="/logo-white.png"
+              alt="Storefront Logo"
+              width={100}
+              height={100}
+              className="h-8 w-8"
+            />
           </Link>
 
           {/* Desktop Navigation */}

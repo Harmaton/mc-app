@@ -5,6 +5,7 @@ import { api } from "../../convex/_generated/api"
 import { StorefrontNavbar } from "@/components/storefront/navbar"
 import { Card, CardContent } from "@/components/ui/card"
 import Link from "next/link"
+import Image from "next/image"
 
 export default function CategoriesPage() {
   const categories = useQuery(api.categories.listActive) || []
@@ -25,8 +26,10 @@ export default function CategoriesPage() {
               <Card className="group cursor-pointer transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
                 <CardContent className="p-0">
                   <div className="aspect-[4/3] relative overflow-hidden rounded-t-lg">
-                    <img
-                      src={category.imageUrl || "/placeholder.svg?height=300&width=400&text=Category"}
+                    <Image
+                    width={400}
+                    height={300}
+                      src={category.imageUrl || "/banner-mc.png"}
                       alt={category.name}
                       className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
                     />

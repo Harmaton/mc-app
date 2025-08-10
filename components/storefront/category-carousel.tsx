@@ -69,7 +69,7 @@ export function CategoryCarousel() {
                   <CardContent className="p-0">
                     <div className="aspect-[4/3] relative overflow-hidden rounded-t-lg">
                       <img
-                        src={category.imageUrl || "/placeholder.svg?height=300&width=400&text=Category"}
+                        src={category.imageUrl || "/banner-mc.png"}
                         alt={category.name}
                         className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
                       />

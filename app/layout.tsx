@@ -22,6 +22,10 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "MillCarry Bags",
   description: "A platform for buying and selling bags of various categories",
+  icons: {
+    icon: "/logo-white.png",
+    apple: "/logo-white.png",
+  },
 };
 
 export default function RootLayout({

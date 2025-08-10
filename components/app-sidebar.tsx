@@ -18,6 +18,7 @@ import {
   SidebarMenuItem,
   SidebarRail,
 } from "@/components/ui/sidebar"
+import Image from "next/image"
 
 const data = {
   navMain: [
@@ -63,15 +64,15 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton size="lg" asChild>
-              <Link href="/admin/home">
-                <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
-                  <ShoppingBag className="size-4" />
-                </div>
-                <div className="grid flex-1 text-left text-sm leading-tight">
-                  <span className="truncate font-semibold">Bag Store</span>
-                  <span className="truncate text-xs">Dashboard</span>
-                </div>
-              </Link>
+               <Link href="/" className="flex items-center space-x-2">
+            <Image 
+              src="/logo-white.png"
+              alt="Storefront Logo"
+              width={200}
+              height={200}
+              className="h-8 w-8"
+            />
+          </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>

@@ -10,6 +10,7 @@ import Link from "next/link"
 import { useCart } from "./cart-provider"
 import { toast } from "sonner"
 import type { Id } from "../../convex/_generated/dataModel"
+import Image from 'next/image'
 
 interface Product {
   _id: Id<"productCatalog">
@@ -70,8 +71,10 @@ export function ProductCard({ product }: ProductCardProps) {
       <Card className="group cursor-pointer transition-all duration-300 hover:shadow-lg hover:-translate-y-1 h-full">
         <CardContent className="p-0">
           <div className="aspect-square relative overflow-hidden rounded-t-lg">
-            <img
-              src={product.imageUrls[0] || "/placeholder.svg?height=300&width=300&text=Product"}
+            <Image
+              width={300}
+              height={300}
+              src={product.imageUrls[0] || "/banner-mc.png"}
               alt={product.name}
               className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
             />
