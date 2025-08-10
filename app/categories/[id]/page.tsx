@@ -8,22 +8,25 @@ import { Button } from "@/components/ui/button"
 import { ArrowLeft } from "lucide-react"
 import Link from "next/link"
 import { notFound } from "next/navigation"
+import { useParams } from "next/navigation" 
 import type { Id } from "../../../convex/_generated/dataModel"
 
-interface CategoryPageProps {
-  params: {
-    id: string
-  }
-}
+export default function CategoryPage() {
+  const { id } = useParams()  // ← Get `id` from useParams()
 
-export default function CategoryPage({ params }: CategoryPageProps) {
+  if (!id) {
+    notFound()
+  }
+
+  const categoryId = typeof id === "string" ? id : ""
+
   const categories = useQuery(api.categories.list) || []
   const products =
     useQuery(api.productCatalog.listByCategory, {
-      categoryId: params.id as Id<"categories">,
+      categoryId: categoryId as Id<"categories">,
     }) || []
 
-  const category = categories.find((c) => c._id === params.id)
+  const category = categories.find((c) => c._id === categoryId)
 
   if (categories.length > 0 && !category) {
     notFound()
