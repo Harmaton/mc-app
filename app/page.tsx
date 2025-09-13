@@ -9,10 +9,13 @@ import { Button } from "@/components/ui/button"
 import { ArrowRight, Truck, Shield, Headphones, Star, Users, Package } from "lucide-react"
 import Link from "next/link"
 import { Footer } from "@/components/storefront/footer"
+import { SkeletonProductCard } from "@/components/storefront/skeleton-products"
 
 export default function HomePage() {
-  const featuredProducts = useQuery(api.productCatalog.listFeatured) || []
-  const allProducts = useQuery(api.productCatalog.listActive) || []
+  const featuredProducts = useQuery(api.productCatalog.listFeatured)
+  const allProducts = useQuery(api.productCatalog.listActive)
+
+  console.log('products->',featuredProducts)
 
   return (
     <div className="min-h-screen">
@@ -105,7 +108,7 @@ export default function HomePage() {
                 <Truck className="h-8 w-8 text-purple-600" />
               </div>
               <h3 className="font-semibold text-gray-900 mb-1">Free Delivery</h3>
-              <p className="text-sm text-gray-600">Orders over KES 5,000</p>
+              <p className="text-sm text-gray-600">Orders over KES 15,000</p>
             </div>
 
             <div className="flex flex-col items-center">
@@ -138,73 +141,121 @@ export default function HomePage() {
       {/* Category Carousel */}
       <CategoryCarousel />
 
-      {/* Featured Products */}
-      {featuredProducts.length > 0 && (
-        <section className="py-20 bg-white">
-          <div className="container mx-auto px-4">
-            <div className="text-center mb-12">
-              <div className="inline-flex items-center gap-2 bg-purple-100 text-purple-800 px-4 py-2 rounded-full text-sm font-medium mb-4">
-                <Star className="h-4 w-4" />
-                Featured Collection
-              </div>
-              <h2 className="text-4xl font-bold mb-4 text-gray-900">Handpicked for You</h2>
-              <p className="text-gray-600 max-w-2xl mx-auto text-lg">
-                Our most popular items that combine style, quality, and functionality
-              </p>
-            </div>
+{/* Featured Products */}
+<section className="py-20 bg-white">
+  <div className="container mx-auto px-4">
+    <div className="text-center mb-12">
+      <div className="inline-flex items-center gap-2 bg-purple-100 text-purple-800 px-4 py-2 rounded-full text-sm font-medium mb-4">
+        <Star className="h-4 w-4" />
+        Featured Collection
+      </div>
+      <h2 className="text-4xl font-bold mb-4 text-gray-900">Handpicked for You</h2>
+      <p className="text-gray-600 max-w-2xl mx-auto text-lg">
+        Our most popular items that combine style, quality, and functionality
+      </p>
+    </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-              {featuredProducts.slice(0, 8).map((product) => (
-                <ProductCard key={product._id} product={product} />
-              ))}
-            </div>
+    {/* Loading State */}
+    {!featuredProducts && (
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        {[...Array(3)].map((_, i) => (
+          <SkeletonProductCard key={i} />
+        ))}
+      </div>
+    )}
 
-            <div className="text-center mt-12">
-              <Button 
-                variant="outline" 
-                size="lg" 
-                className="border-purple-200 text-purple-700 hover:bg-purple-50 px-8 py-6 text-lg"
-                asChild
-              >
-                <Link href="/products">
-                  View All Products <ArrowRight className="ml-2 h-5 w-5" />
-                </Link>
-              </Button>
-            </div>
-          </div>
-        </section>
-      )}
+    {/* Error State */}
+    {featuredProducts === null && (
+      <div className="text-center py-12 text-red-600 font-medium">
+        Failed to load featured products. Please try again.
+      </div>
+    )}
 
-      {/* Latest Products */}
-      <section className="py-20 bg-gradient-to-br from-gray-50 to-purple-50">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-12">
-            <div className="inline-flex items-center gap-2 bg-gradient-to-r from-purple-100 to-pink-100 text-purple-800 px-4 py-2 rounded-full text-sm font-medium mb-4">
-              <Package className="h-4 w-4" />
-              New Arrivals
-            </div>
-            <h2 className="text-4xl font-bold mb-4 text-gray-900">Latest Additions</h2>
-            <p className="text-gray-600 max-w-2xl mx-auto text-lg">Fresh styles just added to our collection</p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {allProducts.slice(0, 8).map((product) => (
-              <ProductCard key={product._id} product={product} />
-            ))}
-          </div>
-
-          <div className="text-center mt-12">
-            <Button 
-              className="bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white px-8 py-6 text-lg shadow-lg hover:shadow-xl transition-all duration-300"
-              asChild
-            >
-              <Link href="/products">
-                Explore All Products <ArrowRight className="ml-2 h-5 w-5" />
-              </Link>
-            </Button>
-          </div>
+    {/* Data Loaded */}
+    {featuredProducts && featuredProducts.length > 0 ? (
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        {featuredProducts.slice(0, 8).map((product) => (
+          <ProductCard key={product._id} product={product} />
+        ))}
+      </div>
+    ) : (
+      featuredProducts !== null && (
+        <div className="col-span-full text-center py-12 text-gray-500">
+          No featured products available yet.
         </div>
-      </section>
+      )
+    )}
+
+    <div className="text-center mt-12">
+      <Button 
+        variant="outline" 
+        size="lg" 
+        className="border-purple-200 text-purple-700 hover:bg-purple-50 px-8 py-6 text-lg"
+        asChild
+      >
+        <Link href="/products">
+          View All Products <ArrowRight className="ml-2 h-5 w-5" />
+        </Link>
+      </Button>
+    </div>
+  </div>
+</section>
+
+{/* Latest Products */}
+<section className="py-20 bg-gradient-to-br from-gray-50 to-purple-50">
+  <div className="container mx-auto px-4">
+    <div className="text-center mb-12">
+      <div className="inline-flex items-center gap-2 bg-gradient-to-r from-purple-100 to-pink-100 text-purple-800 px-4 py-2 rounded-full text-sm font-medium mb-4">
+        <Package className="h-4 w-4" />
+        New Arrivals
+      </div>
+      <h2 className="text-4xl font-bold mb-4 text-gray-900">Latest Additions</h2>
+      <p className="text-gray-600 max-w-2xl mx-auto text-lg">Fresh styles just added to our collection</p>
+    </div>
+
+    {/* Loading State */}
+    {!allProducts && (
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        {[...Array(3)].map((_, i) => (
+          <SkeletonProductCard key={i} />
+        ))}
+      </div>
+    )}
+
+    {/* Error State */}
+    {allProducts === null && (
+      <div className="text-center py-12 text-red-600 font-medium">
+        Failed to load new arrivals. Please try again.
+      </div>
+    )}
+
+    {/* Data Loaded */}
+    {allProducts && allProducts.length > 0 ? (
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        {allProducts.slice(0, 8).map((product) => (
+          <ProductCard key={product._id} product={product} />
+        ))}
+      </div>
+    ) : (
+      allProducts !== null && (
+        <div className="col-span-full text-center py-12 text-gray-500">
+          No new products available yet.
+        </div>
+      )
+    )}
+
+    <div className="text-center mt-12">
+      <Button 
+        className="bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white px-8 py-6 text-lg shadow-lg hover:shadow-xl transition-all duration-300"
+        asChild
+      >
+        <Link href="/products">
+          Explore All Products <ArrowRight className="ml-2 h-5 w-5" />
+        </Link>
+      </Button>
+    </div>
+  </div>
+</section>
       <Footer />
     </div>
   )

@@ -12,7 +12,7 @@ export const listActive = query({
     return await ctx.db
       .query("productCatalog")
       .filter((q) => q.eq(q.field("isActive"), true))
-      .order("desc")
+      .order("desc") 
       .collect()
   },
 })
@@ -33,7 +33,7 @@ export const listFeatured = query({
     return await ctx.db
       .query("productCatalog")
       .filter((q) => q.and(q.eq(q.field("isActive"), true), q.eq(q.field("isFeatured"), true)))
-      .order("desc")
+      .order("desc") // Order by default index in descending order
       .collect()
   },
 })
@@ -57,7 +57,7 @@ export const create = mutation({
     categoryId: v.id("categories"),
     basePrice: v.number(),
     costPrice: v.number(),
-    sku: v.string(),
+    sku: v.optional(v.string()),
     colors: v.array(v.string()),
     sizes: v.array(v.string()),
     materials: v.array(v.string()),
@@ -67,8 +67,8 @@ export const create = mutation({
       height: v.number(),
     }),
     weight: v.number(),
-    stockQuantity: v.number(),
-    minStockLevel: v.number(),
+    stockQuantity: v.optional(v.number()),
+    minStockLevel: v.optional(v.number()),
     imageUrls: v.array(v.string()),
     tags: v.array(v.string()),
   },
@@ -79,7 +79,6 @@ export const create = mutation({
       .replace(/[^a-z0-9]+/g, "-")
       .replace(/^-+|-+$/g, "")
 
-    // Ensure slug is unique
     let slug = baseSlug
     let counter = 1
     while (true) {
@@ -94,19 +93,47 @@ export const create = mutation({
       counter++
     }
 
-    // Check if SKU already exists
+    // ✅ AUTO-GENERATE SKU IF NOT PROVIDED
+    let finalSku = args.sku
+
+    if (!finalSku) {
+      // Get the highest existing MCB-XXX SKU number
+      const existingSkus = (await ctx.db
+        .query("productCatalog")
+        .collect()).filter(item => typeof item.sku === "string" && item.sku.startsWith("MCB-"))
+
+      let maxNumber = 0
+      for (const item of existingSkus) {
+        const match = item.sku?.match(/^MCB-(\d{3})$/)
+        if (match) {
+          const num = parseInt(match[1], 10)
+          if (num > maxNumber) maxNumber = num
+        }
+      }
+
+      // Generate next SKU: MCB-001, MCB-002, etc.
+      finalSku = `MCB-${(maxNumber + 1).toString().padStart(3, '0')}`
+    }
+
+    // Check if SKU already exists (in case user passed one manually)
     const existingSku = await ctx.db
       .query("productCatalog")
-      .withIndex("by_sku", (q) => q.eq("sku", args.sku))
+      .withIndex("by_sku", (q) => q.eq("sku", finalSku))
       .first()
 
     if (existingSku) {
-      throw new Error("Product with this SKU already exists")
+      throw new Error(`SKU ${finalSku} already exists`)
     }
+
+    const finalStockQuantity = args.stockQuantity ?? 1
+    const finalMinStockLevel = args.minStockLevel ?? 1
 
     return await ctx.db.insert("productCatalog", {
       ...args,
       slug,
+      sku: finalSku, 
+      stockQuantity: finalStockQuantity,
+      minStockLevel: finalMinStockLevel,
       isActive: true,
       isFeatured: false,
       createdAt: Date.now(),
@@ -123,7 +150,7 @@ export const update = mutation({
     categoryId: v.optional(v.id("categories")),
     basePrice: v.optional(v.number()),
     costPrice: v.optional(v.number()),
-    sku: v.optional(v.string()),
+    sku: v.optional(v.string()), // ← still optional for updates
     colors: v.optional(v.array(v.string())),
     sizes: v.optional(v.array(v.string())),
     materials: v.optional(v.array(v.string())),
@@ -143,8 +170,11 @@ export const update = mutation({
     isFeatured: v.optional(v.boolean()),
   },
   handler: async (ctx, { id, slug, sku, ...updates }) => {
+    const existingProduct = await ctx.db.get(id)
+    if (!existingProduct) throw new Error("Product not found")
+
     // Check if slug is being updated and is unique
-    if (slug) {
+    if (slug !== undefined) {
       const existingSlug = await ctx.db
         .query("productCatalog")
         .withIndex("by_slug", (q) => q.eq("slug", slug))
@@ -155,16 +185,32 @@ export const update = mutation({
       }
     }
 
-    // Check if SKU is being updated and is unique
-    if (sku) {
+    // ✅ If SKU is being updated, validate uniqueness
+    if (sku !== undefined) {
+      // Allow empty string? Probably not — enforce format
+      if (sku === "") {
+        throw new Error("SKU cannot be empty")
+      }
+
+      // Validate format: MCB-000 to MCB-999
+      if (sku && !/^MCB-\d{3}$/.test(sku)) {
+        throw new Error("SKU must be in format MCB-000 to MCB-999")
+      }
+
       const existingSku = await ctx.db
         .query("productCatalog")
         .withIndex("by_sku", (q) => q.eq("sku", sku))
         .first()
 
       if (existingSku && existingSku._id !== id) {
-        throw new Error("Product with this SKU already exists")
+        throw new Error(`SKU ${sku} already exists`)
       }
+    }
+
+    // ✅ Prevent removing SKU entirely if it was auto-generated
+    if (sku === null || sku === undefined) {
+      // Do nothing — leave existing SKU untouched
+      // You could optionally throw here if you want to enforce SKU persistence
     }
 
     return await ctx.db.patch(id, { slug, sku, ...updates })

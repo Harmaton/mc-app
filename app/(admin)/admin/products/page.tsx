@@ -24,7 +24,6 @@ import { useQuery, useMutation } from "convex/react"
 import { Id } from "@/convex/_generated/dataModel"
 import { api } from "@/convex/_generated/api"
 
-
 interface Product {
   _id: Id<"productCatalog">
   name: string
@@ -32,7 +31,7 @@ interface Product {
   categoryId: Id<"categories">
   basePrice: number
   costPrice: number
-  sku: string
+  sku: string // ← Keep in type for API compatibility (backend still returns it)
   colors: string[]
   sizes: string[]
   materials: string[]
@@ -65,7 +64,6 @@ export default function ProductsPage() {
     categoryId: "",
     basePrice: "",
     costPrice: "",
-    sku: "",
     colors: "",
     sizes: "",
     materials: "",
@@ -100,20 +98,15 @@ export default function ProductsPage() {
       toast.error("Valid cost price is required")
       return
     }
-    if (!newProduct.sku.trim()) {
-      toast.error("SKU is required")
-      return
-    }
 
     setIsLoading(true)
     try {
-            await createProduct({
+      await createProduct({
         name: newProduct.name.trim(),
         description: newProduct.description.trim(),
         categoryId: newProduct.categoryId as Id<"categories">,
         basePrice: Number.parseFloat(newProduct.basePrice),
         costPrice: Number.parseFloat(newProduct.costPrice),
-        sku: newProduct.sku.trim(),
         colors: newProduct.colors ? newProduct.colors.split(",").map((c) => c.trim()) : [],
         sizes: newProduct.sizes ? newProduct.sizes.split(",").map((s) => s.trim()) : [],
         materials: newProduct.materials ? newProduct.materials.split(",").map((m) => m.trim()) : [],
@@ -123,8 +116,8 @@ export default function ProductsPage() {
           height: Number.parseFloat(newProduct.height) || 0,
         },
         weight: Number.parseFloat(newProduct.weight) || 0,
-        stockQuantity: Number.parseInt(newProduct.stockQuantity) || 0,
-        minStockLevel: Number.parseInt(newProduct.minStockLevel) || 0,
+        stockQuantity: Number.parseInt(newProduct.stockQuantity) || 1, // ← Default to 1
+        minStockLevel: Number.parseInt(newProduct.minStockLevel) || 1, // ← Default to 1
         imageUrls: newProduct.imageUrls ? newProduct.imageUrls.split(",").map((url) => url.trim()) : [],
         tags: newProduct.tags ? newProduct.tags.split(",").map((t) => t.trim()) : [],
       })
@@ -177,7 +170,6 @@ export default function ProductsPage() {
       categoryId: "",
       basePrice: "",
       costPrice: "",
-      sku: "",
       colors: "",
       sizes: "",
       materials: "",
@@ -229,16 +221,7 @@ export default function ProductsPage() {
                       disabled={isLoading}
                     />
                   </div>
-                  <div className="grid gap-2">
-                    <Label htmlFor="sku">SKU *</Label>
-                    <Input
-                      id="sku"
-                      value={newProduct.sku}
-                      onChange={(e) => setNewProduct({ ...newProduct, sku: e.target.value })}
-                      placeholder="e.g., PLT-001"
-                      disabled={isLoading}
-                    />
-                  </div>
+                  {/* ✅ REMOVED: SKU FIELD */}
                 </div>
                 <div className="grid gap-2">
                   <Label htmlFor="description">Description</Label>
@@ -530,95 +513,91 @@ export default function ProductsPage() {
                   <TableHead>Category</TableHead>
                   <TableHead>Price (KES)</TableHead>
                   <TableHead>Stock</TableHead>
-                  <TableHead className="hidden md:table-cell">SKU</TableHead>
+                  <TableHead className="hidden md:table-cell">SKU</TableHead> {/* ← KEEP FOR ADMIN */}
                   <TableHead>Status</TableHead>
                   <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {products.map((product) => {
-                  const category = categories.find((c) => c._id === product.categoryId)
-                  const profit = product.basePrice - product.costPrice
-                  const profitMargin = product.basePrice > 0 ? ((profit / product.basePrice) * 100).toFixed(1) : "0"
+  {products.map((product) => {
+    const category = categories.find((c) => c._id === product.categoryId)
+    const profit = product.basePrice - product.costPrice
+    const profitMargin = product.basePrice > 0 ? ((profit / product.basePrice) * 100).toFixed(1) : "0"
 
-                  return (
-                    <TableRow key={product._id}>
-                      <TableCell>
-                        <div className="flex items-center gap-3">
-                          {product.imageUrls.length > 0 ? (
-                            <img
-                              src={product.imageUrls[0] || "/placeholder.svg"}
-                              alt={product.name}
-                              className="h-10 w-10 rounded-md object-cover"
-                            />
-                          ) : (
-                            <div className="h-10 w-10 rounded-md bg-muted flex items-center justify-center">
-                              <ImageIcon className="h-4 w-4 text-muted-foreground" />
-                            </div>
-                          )}
-                          <div>
-                            <div className="font-medium flex items-center gap-2">
-                              {product.name}
-                              {product.isFeatured && <Star className="h-3 w-3 text-yellow-500 fill-current" />}
-                            </div>
-                            <div className="text-sm text-muted-foreground">Margin: {profitMargin}%</div>
-                          </div>
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <Badge variant="outline">{category?.name || "Unknown"}</Badge>
-                      </TableCell>
-                      <TableCell>
-                        <div>
-                          <div className="font-medium">{product.basePrice.toLocaleString()}</div>
-                          <div className="text-sm text-muted-foreground">
-                            Cost: {product.costPrice.toLocaleString()}
-                          </div>
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <div>
-                          <div className="font-medium">{product.stockQuantity}</div>
-                          {getStockStatus(product.stockQuantity, product.minStockLevel)}
-                        </div>
-                      </TableCell>
-                      <TableCell className="hidden md:table-cell">
-                        <code className="text-sm bg-muted px-1 py-0.5 rounded">{product.sku}</code>
-                      </TableCell>
-                      <TableCell>
-                        <Badge
-                          className={product.isActive ? "bg-green-100 text-green-800" : "bg-gray-100 text-gray-800"}
-                        >
-                          {product.isActive ? "Active" : "Inactive"}
-                        </Badge>
-                      </TableCell>
-                      <TableCell className="text-right">
-                        <div className="flex justify-end gap-2">
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => handleToggleFeatured(product._id, product.isFeatured, product.name)}
-                            title={product.isFeatured ? "Remove from Featured" : "Add to Featured"}
-                          >
-                            <Star className={`h-4 w-4 ${product.isFeatured ? "text-yellow-500 fill-current" : ""}`} />
-                          </Button>
-                          <Button variant="outline" size="sm" title="Edit Product">
-                            <Edit className="h-4 w-4" />
-                          </Button>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => handleDeleteProduct(product._id, product.name)}
-                            title="Delete Product"
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  )
-                })}
-              </TableBody>
+    return (
+      <TableRow key={product._id}>
+        <TableCell>
+          <div className="flex items-center gap-3">
+            {product.imageUrls.length > 0 ? (
+              <img
+                src={product.imageUrls[0] || "/placeholder.svg"}
+                alt={product.name}
+                className="h-10 w-10 rounded-md object-cover"
+              />
+            ) : (
+              <div className="h-10 w-10 rounded-md bg-muted flex items-center justify-center">
+                <ImageIcon className="h-4 w-4 text-muted-foreground" />
+              </div>
+            )}
+            <div>
+              <div className="font-medium flex items-center gap-2">
+                {product.name}
+                {product.isFeatured && <Star className="h-3 w-3 text-yellow-500 fill-current" />}
+              </div>
+              <div className="text-sm text-muted-foreground">Margin: {profitMargin}%</div>
+            </div>
+          </div>
+        </TableCell>
+        <TableCell>
+          <Badge variant="outline">{category?.name || "Unknown"}</Badge>
+        </TableCell>
+        <TableCell>
+          <div>
+            <div className="font-medium">{product.basePrice.toLocaleString()}</div>
+            <div className="text-sm text-muted-foreground">Cost: {product.costPrice.toLocaleString()}</div>
+          </div>
+        </TableCell>
+        <TableCell>
+          <div>
+            <div className="font-medium">{product.stockQuantity}</div>
+            {getStockStatus(product.stockQuantity, product.minStockLevel)}
+          </div>
+        </TableCell>
+        <TableCell className="hidden md:table-cell">
+          <code className="text-sm bg-muted px-1 py-0.5 rounded">{product.sku}</code>
+        </TableCell>
+        <TableCell>
+          <Badge className={product.isActive ? "bg-green-100 text-green-800" : "bg-gray-100 text-gray-800"}>
+            {product.isActive ? "Active" : "Inactive"}
+          </Badge>
+        </TableCell>
+        <TableCell className="text-right">
+          <div className="flex justify-end gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => handleToggleFeatured(product._id, product.isFeatured, product.name)}
+              title={product.isFeatured ? "Remove from Featured" : "Add to Featured"}
+            >
+              <Star className={`h-4 w-4 ${product.isFeatured ? "text-yellow-500 fill-current" : ""}`} />
+            </Button>
+            <Button variant="outline" size="sm" title="Edit Product">
+              <Edit className="h-4 w-4" />
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => handleDeleteProduct(product._id, product.name)}
+              title="Delete Product"
+            >
+              <Trash2 className="h-4 w-4" />
+            </Button>
+          </div>
+        </TableCell>
+      </TableRow>
+    )
+  })}
+</TableBody>
             </Table>
           )}
         </CardContent>

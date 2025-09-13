@@ -17,7 +17,7 @@ export default defineSchema({
     categoryId: v.id("categories"),
     basePrice: v.number(),
     costPrice: v.number(),
-    sku: v.string(),
+    sku: v.optional(v.string()),
     colors: v.array(v.string()),
     sizes: v.array(v.string()),
     materials: v.array(v.string()),
