@@ -9,14 +9,14 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
 import { ShoppingCart, Heart, Share2, Truck, Shield, ArrowLeft } from "lucide-react"
 import { useState } from "react"
-import { useCart } from "@/components/storefront/cart-provider"
 import { toast } from "sonner"
 import Link from "next/link"
 import { notFound, useParams } from "next/navigation"
+import { useCart } from "@/providers/cart-provider"
 
 
 export default function ProductPage() {
-    const { id } = useParams()  // ← Get `id` from useParams()
+    const { id } = useParams()  
   
     if (!id) {
       notFound()

@@ -1,8 +1,9 @@
 "use client"
 
+import { Id } from "@/convex/_generated/dataModel"
 import type React from "react"
 import { createContext, useContext, useState, useEffect } from "react"
-import type { Id } from "../../convex/_generated/dataModel"
+
 
 interface CartItem {
   productId: Id<"productCatalog">

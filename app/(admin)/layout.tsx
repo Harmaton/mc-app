@@ -1,5 +1,6 @@
-import type React from "react"
+'use client'
 
+import type React from "react"
 import { SidebarProvider, SidebarInset, SidebarTrigger } from "@/components/ui/sidebar"
 import { Separator } from "@/components/ui/separator"
 import {
@@ -11,12 +12,24 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb"
 import { AppSidebar } from "@/components/app-sidebar"
+import { useUser } from "@clerk/nextjs"
 
 export default function AdminLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
+
+  const { isLoaded, isSignedIn, user } = useUser();
+
+  if (!isLoaded || !isSignedIn) {
+        return <div>Loading ...</div>
+  }
+  const admin_emails = ['gikonyomilscent@gmail.com', 'njagiiharmaton@gmail.com']
+  if(!admin_emails.includes(user.emailAddresses[0].emailAddress)){
+    return <div>Not Authorised to access this page!</div>
+  }
+
   return (
     <SidebarProvider>
       <AppSidebar />

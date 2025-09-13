@@ -4,10 +4,7 @@ import "./globals.css";
 import ConvexClientProvider from "@/lib/convexClientProvider";
 import { ClerkProvider } from "@clerk/nextjs";
 import { Toaster } from "sonner";
-import { CartProvider } from "@/components/storefront/cart-provider";
-
-
-
+import { CartProvider } from "@/providers/cart-provider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
