@@ -4,7 +4,6 @@ import * as React from "react"
 import * as RechartsPrimitive from "recharts"
 import { cn } from "@/lib/utils"
 import type {
-  RechartsPayload,
   RechartsLegendPayload,
   RechartsTooltipPayload,
   ChartConfigItem,
@@ -123,7 +122,7 @@ function ChartTooltipContent({
   hideLabel?: boolean
   hideIndicator?: boolean
   label?: React.ReactNode
-  labelFormatter?: (label: any, payload: RechartsTooltipPayload) => React.ReactNode
+  labelFormatter?: (label: unknown, payload: RechartsTooltipPayload) => React.ReactNode
   labelClassName?: string
   formatter?: (
     value: unknown,
