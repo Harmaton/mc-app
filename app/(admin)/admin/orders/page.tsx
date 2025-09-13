@@ -77,7 +77,10 @@ export default function OrdersPage() {
   const handleProductSelect = (productId: string) => {
     const product = products.find((p) => p._id === productId)
     if (product) {
-      setSelectedProduct(product)
+      setSelectedProduct({
+        ...product,
+        sku: product.sku ?? "",
+      })
       setNewOrder({
         ...newOrder,
         productCatalogId: productId,
@@ -211,7 +214,11 @@ export default function OrdersPage() {
       if (!acc[categoryName]) {
         acc[categoryName] = []
       }
-      acc[categoryName].push(product)
+      // Ensure sku is always a string
+      acc[categoryName].push({
+        ...product,
+        sku: product.sku ?? "",
+      })
       return acc
     },
     {} as Record<string, Product[]>,
